@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BimaShop - Elektronik Terlengkap & Termurah oleh Ignitron</title>
+    <meta
+      name="description"
+      content="BimaShop - Toko elektronik online terpercaya dengan produk HP, Laptop, Komputer, Charger dan aksesoris terlengkap dengan harga terbaik. Didukung penuh oleh Ignitron, penyedia solusi teknologi terkemuka."
+    />
+    <meta
+      name="keywords"
+      content="BimaShop, elektronik, HP, laptop, komputer, charger, aksesoris, murah, original, TikTok Shop, Ignitron, IgnitronDev, solusi teknologi, pengembangan perangkat lunak"
+    />
+    <meta name="author" content="Ignitron" />
+    <link rel="canonical" href="https://www.your-bimashop-url.com/" />
+
+    <link rel="stylesheet" href="styles/style.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <i class="fas fa-bolt"></i>
+          <span>BimaShop</span>
+        </div>
+        <div class="nav-menu" id="nav-menu">
+          <a href="#home" class="nav-link">Home</a>
+          <a href="#products" class="nav-link">Produk</a>
+          <a href="#categories" class="nav-link">Kategori</a>
+          <a href="#about" class="nav-link">Tentang</a>
+        </div>
+        <div class="nav-toggle" id="nav-toggle">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <section id="home" class="hero">
+      <div class="hero-container">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            <span class="gradient-text">BimaShop</span>
+            <br />Elektronik Terlengkap
+          </h1>
+          <p class="hero-subtitle">
+            Dapatkan HP, Laptop, Komputer, Charger dan aksesoris elektronik
+            terbaik dengan harga termurah dan kualitas terjamin!
+            <br />Didukung oleh Ignitron, penyedia solusi teknologi inovatif.
+          </p>
+          <div class="hero-cta">
+            <button class="btn-primary" onclick="scrollToProducts()">
+              <i class="fas fa-shopping-bag"></i>
+              Belanja Sekarang
+            </button>
+            <div class="hero-stats">
+              <div class="stat-item">
+                <span class="stat-number">1000+</span>
+                <span class="stat-label">Produk</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">50K+</span>
+                <span class="stat-label">Customer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="floating-card card-1">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Smartphone</span>
+          </div>
+          <div class="floating-card card-2">
+            <i class="fas fa-laptop"></i>
+            <span>Laptop</span>
+          </div>
+          <div class="floating-card card-3">
+            <i class="fas fa-charging-station"></i>
+            <span>Charger</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="categories" class="categories">
+      <div class="container">
+        <h2 class="section-title">Kategori Produk</h2>
+        <div class="categories-grid">
+          <div class="category-card" data-category="smartphone">
+            <div class="category-icon">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <h3>Smartphone</h3>
+            <p>iPhone, Samsung, Xiaomi, Oppo</p>
+          </div>
+          <div class="category-card" data-category="laptop">
+            <div class="category-icon">
+              <i class="fas fa-laptop"></i>
+            </div>
+            <h3>Laptop</h3>
+            <p>Gaming, Office, Ultrabook</p>
+          </div>
+          <div class="category-card" data-category="komputer">
+            <div class="category-icon">
+              <i class="fas fa-desktop"></i>
+            </div>
+            <h3>Komputer</h3>
+            <p>PC Gaming, All-in-One</p>
+          </div>
+          <div class="category-card" data-category="aksesoris">
+            <div class="category-icon">
+              <i class="fas fa-headphones"></i>
+            </div>
+            <h3>Aksesoris</h3>
+            <p>Earphone, Mouse, Keyboard</p>
+          </div>
+          <div class="category-card" data-category="charger">
+            <div class="category-icon">
+              <i class="fas fa-charging-station"></i>
+            </div>
+            <h3>Charger</h3>
+            <p>Power Bank, Fast Charging</p>
+          </div>
+          <div class="category-card" data-category="gaming">
+            <div class="category-icon">
+              <i class="fas fa-gamepad"></i>
+            </div>
+            <h3>Gaming</h3>
+            <p>Console, Controller, Monitor</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="products" class="products">
+      <div class="container">
+        <div class="products-header">
+          <h2 class="section-title">Produk Terlaris</h2>
+          <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="smartphone">
+              Smartphone
+            </button>
+            <button class="filter-btn" data-filter="laptop">Laptop</button>
+            <button class="filter-btn" data-filter="aksesoris">
+              Aksesoris
+            </button>
+            <button class="filter-btn" data-filter="charger">Charger</button>
+          </div>
+        </div>
+
+        <div class="products-grid" id="products-grid"></div>
+
+        <div class="load-more">
+          <button class="btn-secondary" id="load-more-btn">
+            <i class="fas fa-plus"></i>
+            Muat Lebih Banyak
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">Mengapa Pilih BimaShop?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3>Produk Original</h3>
+            <p>Semua produk 100% original dengan garansi resmi</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-shipping-fast"></i>
+            </div>
+            <h3>Pengiriman Cepat</h3>
+            <p>Gratis ongkir dan pengiriman express ke seluruh Indonesia</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-tags"></i>
+            </div>
+            <h3>Harga Terbaik</h3>
+            <p>Harga termurah dengan kualitas terjamin</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-headset"></i>
+            </div>
+            <h3>Customer Service</h3>
+            <p>Layanan pelanggan 24/7 siap membantu Anda</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="newsletter">
+      <div class="container">
+        <div class="newsletter-content">
+          <h2>Dapatkan Penawaran Terbaik!</h2>
+          <p>
+            Subscribe untuk mendapatkan info produk terbaru dan diskon khusus
+          </p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="Masukkan email Anda" />
+            <button class="btn-primary">Subscribe</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about-section">
+      <div class="container">
+        <h2 class="section-title">Tentang BimaShop</h2>
+        <p>
+          BimaShop didirikan dengan visi untuk menyediakan akses mudah ke produk
+          elektronik berkualitas tinggi dan terjangkau bagi semua orang di
+          Indonesia. Kami berdedikasi untuk memberikan pengalaman belanja online
+          yang aman, nyaman, dan memuaskan.
+        </p>
+        <p>
+          Proyek ini dengan bangga didukung dan dikembangkan oleh
+          <a
+            href="https://ignitrondev.github.io/org"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Ignitron</a
+          >, penyedia solusi pengembangan perangkat lunak yang berfokus pada
+          inovasi dan kualitas. Kami memanfaatkan keahlian IgnitronDev untuk
+          memastikan platform ini stabil, aman, dan mutakhir.
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <i class="fas fa-bolt"></i>
+              <span>BimaShop</span>
+            </div>
+            <p>
+              Toko elektronik online terpercaya dengan produk berkualitas dan
+              harga terbaik.
+              <br />Dibuat dengan ❤️ oleh tim **Ignitron**.
+            </p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook"
+                ><i class="fab fa-facebook"></i
+              ></a>
+              <a href="#" aria-label="Instagram"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+              <a href="#" aria-label="WhatsApp"
+                ><i class="fab fa-whatsapp"></i
+              ></a>
+              <a
+                href="https://ignitrondev.github.io/org"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Website Ignitron"
+                ><i class="fas fa-globe"></i
+              ></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Kategori</h3>
+            <ul>
+              <li><a href="#">Smartphone</a></li>
+              <li><a href="#">Laptop</a></li>
+              <li><a href="#">Komputer</a></li>
+              <li><a href="#">Aksesoris</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Bantuan</h3>
+            <ul>
+              <li><a href="#">FAQ</a></li>
+              <li><a href="#">Cara Belanja</a></li>
+              <li><a href="#">Garansi</a></li>
+              <li><a href="#">Kontak</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Kontak</h3>
+            <div class="contact-info">
+              <p><i class="fas fa-phone"></i>+6283894302880</p>
+              <!-- <p><i class="fas fa-envelope"></i> info@bimashop.com</p> -->
+              <p><i class="fas fa-map-marker-alt"></i> Boyolali, Indonesia</p>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2025 BimaShop. Didukung oleh
+            <a
+              href="https://ignitrondev.github.io/org"
+              target="_blank"
+              rel="noopener noreferrer"
+              >**Ignitron**</a
+            >. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Kembali ke atas">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
