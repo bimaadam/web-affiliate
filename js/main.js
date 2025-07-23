@@ -65,7 +65,9 @@ async function fetchProducts() {
   try {
     // Adjust this path if product.json is in the same directory as main.js
     // If main.js is in 'js/' and product.json is in root, '../product.json' is correct.
-    const response = await fetch("product.json");
+    const response = await fetch(
+      "https://bima-server.pygora-cobia.ts.net/produk"
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
