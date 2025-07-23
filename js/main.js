@@ -43,6 +43,15 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeApp();
 });
 
+function scrollToProducts() {
+  const section = document.getElementById("products"); // id sesuai
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth" });
+  } else {
+    console.log("Element #products ga ketemu cok");
+  }
+}
+
 async function initializeApp() {
   await fetchProducts(); // Fetch products first
   setupEventListeners();
