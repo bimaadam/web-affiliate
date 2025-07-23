@@ -1,16 +1,11 @@
-// Product Data - Replace with your actual TikTok Shop affiliate links
+// Product Data - Will be loaded from product.json
 let productsData = [];
-
-fetch("../product.json")
-  .then((res) => res.json())
-  .then((data) => {
-    productsData = data;
-  });
 
 // Global Variables
 let currentFilter = "all";
 let displayedProducts = 6;
-let isLoading = false;
+let isLoading = false; // To prevent multiple loads
+const productsPerPage = 6; // Number of products to load at once
 
 // DOM Elements
 const navbar = document.querySelector(".navbar");
@@ -22,15 +17,58 @@ const loadMoreBtn = document.getElementById("load-more-btn");
 const backToTopBtn = document.getElementById("back-to-top");
 const loadingOverlay = document.getElementById("loading-overlay");
 
+// Modal Elements - New elements for product detail modal
+const productDetailModal = document.getElementById("productDetailModal");
+const closeButton = productDetailModal
+  ? productDetailModal.querySelector(".close-button")
+  : null;
+const modalProductImage = document.getElementById("modalProductImage");
+const modalProductName = document.getElementById("modalProductName");
+const modalCurrentPrice = document.getElementById("modalCurrentPrice");
+const modalOriginalPrice = document.getElementById("modalOriginalPrice");
+const modalProductStars = document.getElementById("modalProductStars");
+const modalRatingText = document.getElementById("modalRatingText");
+const modalProductDescription = document.getElementById(
+  "modalProductDescription"
+);
+const modalBuyButton = productDetailModal
+  ? productDetailModal.querySelector(".modal-product-actions .btn-primary")
+  : null; // "Tambah ke Keranjang" button in modal
+const modalWishlistButton = productDetailModal
+  ? productDetailModal.querySelector(".modal-product-actions .btn-secondary")
+  : null; // "Tambah ke Wishlist" button in modal
+
 // Initialize App
 document.addEventListener("DOMContentLoaded", function () {
   initializeApp();
 });
 
-function initializeApp() {
+async function initializeApp() {
+  await fetchProducts(); // Fetch products first
   setupEventListeners();
-  displayProducts();
+  displayProducts(); // Display initial products after fetching
   updateLoadMoreButton();
+}
+
+// Fetch Product Data
+async function fetchProducts() {
+  showLoading();
+  try {
+    // Adjust this path if product.json is in the same directory as main.js
+    // If main.js is in 'js/' and product.json is in root, '../product.json' is correct.
+    const response = await fetch("product.json");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    productsData = await response.json();
+  } catch (error) {
+    console.error("Failed to fetch product data:", error);
+    productsGrid.innerHTML =
+      "<p class='no-products-message'>Maaf, gagal memuat produk. Silakan coba lagi nanti.</p>";
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
+  } finally {
+    hideLoading();
+  }
 }
 
 function setupEventListeners() {
@@ -43,10 +81,14 @@ function setupEventListeners() {
   });
 
   // Load more button
-  loadMoreBtn.addEventListener("click", loadMoreProducts);
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", loadMoreProducts);
+  }
 
   // Back to top button
-  backToTopBtn.addEventListener("click", scrollToTop);
+  if (backToTopBtn) {
+    backToTopBtn.addEventListener("click", scrollToTop);
+  }
 
   // Scroll events
   window.addEventListener("scroll", handleScroll);
@@ -67,6 +109,27 @@ function setupEventListeners() {
   const navLinks = document.querySelectorAll(".nav-link");
   navLinks.forEach((link) => {
     link.addEventListener("click", handleNavLinkClick);
+  });
+
+  // Modal Event Listeners
+  if (closeButton) {
+    closeButton.addEventListener("click", hideProductDetailModal);
+  }
+  if (productDetailModal) {
+    window.addEventListener("click", (event) => {
+      if (event.target === productDetailModal) {
+        hideProductDetailModal();
+      }
+    });
+  }
+  window.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      productDetailModal &&
+      productDetailModal.style.display === "block"
+    ) {
+      hideProductDetailModal();
+    }
   });
 }
 
@@ -95,38 +158,51 @@ function handleNavLinkClick(e) {
 
 // Product Display Functions
 function displayProducts() {
-  showLoading();
+  // This showLoading/hideLoading here is for when filter/load more is clicked
+  // Initial loading is handled by fetchProducts
+  if (!isLoading) showLoading();
 
   setTimeout(() => {
     const filteredProducts = getFilteredProducts();
     const productsToShow = filteredProducts.slice(0, displayedProducts);
 
-    productsGrid.innerHTML = "";
+    productsGrid.innerHTML = ""; // Clear existing products
 
-    productsToShow.forEach((product, index) => {
-      const productCard = createProductCard(product);
-      productCard.style.animationDelay = `${index * 0.1}s`;
-      productsGrid.appendChild(productCard);
-    });
+    if (productsToShow.length === 0) {
+      productsGrid.innerHTML =
+        "<p class='no-products-message'>Tidak ada produk yang ditemukan untuk kategori ini.</p>";
+      if (loadMoreBtn) loadMoreBtn.style.display = "none";
+    } else {
+      productsToShow.forEach((product, index) => {
+        const productCard = createProductCard(product);
+        productCard.style.animationDelay = `${index * 0.1}s`;
+        productsGrid.appendChild(productCard);
+      });
+    }
 
     hideLoading();
     updateLoadMoreButton();
-  }, 500);
+  }, 500); // Small delay for visual effect
 }
 
 function createProductCard(product) {
   const card = document.createElement("div");
-  card.className = "product-card";
+  card.className = "product-card animate-in"; // Add animate-in class
   card.setAttribute("data-category", product.category);
+  card.setAttribute("data-product-id", product.id); // Add product ID to card
 
   const stars = generateStars(product.rating);
 
   card.innerHTML = `
         <div class="product-image">
             <img src="${product.image}" alt="${product.name}" loading="lazy">
-            <div class="product-badge ${product.badge}">${
-    product.badge === "sale" ? "SALE" : "NEW"
-  }</div>
+            ${
+              product.badge
+                ? `<div class="product-badge ${
+                    product.badge
+                  }">${product.badge.toUpperCase()}</div>`
+                : ""
+            }
         </div>
         <div class="product-info">
             <div class="product-category">${getCategoryName(
@@ -143,23 +219,53 @@ function createProductCard(product) {
             </div>
             <div class="product-rating">
                 <div class="stars">${stars}</div>
-                <span class="rating-text">(${product.reviews} reviews)</span>
+                <span class="rating-text">(${product.reviews} ulasan)</span>
             </div>
             <div class="product-actions">
-                <button class="btn-buy" onclick="buyProduct('${
+                <button class="btn-buy card-buy-btn" data-affiliate-link="${
                   product.affiliateLink
-                }', '${product.name}')">
+                }" data-product-name="${product.name}">
                     <i class="fas fa-shopping-cart"></i>
                     Beli Sekarang
                 </button>
-                <button class="btn-wishlist" onclick="addToWishlist(${
-                  product.id
-                })">
+                <button class="btn-wishlist" data-product-id="${product.id}">
                     <i class="far fa-heart"></i>
                 </button>
             </div>
         </div>
     `;
+
+  // Add event listener to the entire card to open the modal
+  card.addEventListener("click", (event) => {
+    // Prevent opening modal if a button INSIDE the card is clicked
+    if (
+      !event.target.closest(".card-buy-btn") &&
+      !event.target.closest(".btn-wishlist")
+    ) {
+      showProductDetail(product.id);
+    }
+  });
+
+  // Add event listener to the "Beli Sekarang" button on the card
+  const cardBuyButton = card.querySelector(".card-buy-btn");
+  if (cardBuyButton) {
+    cardBuyButton.addEventListener("click", (event) => {
+      event.stopPropagation(); // Stop propagation to prevent modal from opening
+      buyProduct(
+        cardBuyButton.dataset.affiliateLink,
+        cardBuyButton.dataset.productName
+      );
+    });
+  }
+
+  // Add event listener to the "Wishlist" button on the card
+  const cardWishlistButton = card.querySelector(".btn-wishlist");
+  if (cardWishlistButton) {
+    cardWishlistButton.addEventListener("click", (event) => {
+      event.stopPropagation(); // Stop propagation to prevent modal from opening
+      addToWishlist(parseInt(cardWishlistButton.dataset.productId));
+    });
+  }
 
   return card;
 }
@@ -192,9 +298,9 @@ function getCategoryName(category) {
     komputer: "Komputer",
     aksesoris: "Aksesoris",
     charger: "Charger",
-    gaming: "Gaming",
+    gaming: "Gaming", // Pastikan ini ada di product.json jika digunakan
   };
-  return categoryNames[category] || category;
+  return categoryNames[category] || category; // Fallback to raw category name
 }
 
 // Filter Functions
@@ -207,7 +313,7 @@ function handleFilterClick(e) {
 
   // Apply filter
   currentFilter = filter;
-  displayedProducts = 6;
+  displayedProducts = productsPerPage; // Reset count
   displayProducts();
 }
 
@@ -226,8 +332,8 @@ function loadMoreProducts() {
   showLoading();
 
   setTimeout(() => {
-    displayedProducts += 6;
-    displayProducts();
+    displayedProducts += productsPerPage;
+    displayProducts(); // This will also call hideLoading and updateLoadMoreButton
     isLoading = false;
   }, 800);
 }
@@ -235,9 +341,9 @@ function loadMoreProducts() {
 function updateLoadMoreButton() {
   const filteredProducts = getFilteredProducts();
   if (displayedProducts >= filteredProducts.length) {
-    loadMoreBtn.style.display = "none";
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
   } else {
-    loadMoreBtn.style.display = "inline-flex";
+    if (loadMoreBtn) loadMoreBtn.style.display = "inline-flex";
   }
 }
 
@@ -247,7 +353,7 @@ function handleCategoryClick(e) {
 
   // Update filter
   currentFilter = category;
-  displayedProducts = 6;
+  displayedProducts = productsPerPage; // Reset count
 
   // Update active filter button
   filterButtons.forEach((btn) => {
@@ -285,34 +391,81 @@ function buyProduct(affiliateLink, productName) {
 }
 
 function addToWishlist(productId) {
-  // Get current wishlist from localStorage (if you want to implement this)
   let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 
   if (!wishlist.includes(productId)) {
     wishlist.push(productId);
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
-    showNotification("Added to wishlist!", "success");
+    showNotification("Ditambahkan ke wishlist!", "success");
 
-    // Update wishlist button
-    event.target.innerHTML = '<i class="fas fa-heart"></i>';
-    event.target.style.background = "#fca5a5";
-    event.target.style.color = "#dc2626";
+    // Optionally update the heart icon on the card or modal
+    // This part would require more complex DOM manipulation to target specific card buttons
+    // For simplicity, we just show a notification here.
   } else {
-    showNotification("Already in wishlist!", "info");
+    showNotification("Sudah ada di wishlist!", "info");
   }
+}
+
+// --- Modal Specific Functions ---
+function showProductDetail(productId) {
+  const product = productsData.find((p) => p.id === productId);
+
+  if (!product || !productDetailModal) {
+    // Ensure modal elements exist
+    console.error("Product or modal elements not found for ID:", productId);
+    return;
+  }
+
+  modalProductImage.src = product.image;
+  modalProductImage.alt = product.name;
+  modalProductName.textContent = product.name;
+  modalCurrentPrice.textContent = product.price; // Use string price directly
+
+  if (product.originalPrice) {
+    modalOriginalPrice.textContent = product.originalPrice; // Use string originalPrice directly
+    modalOriginalPrice.style.display = "inline";
+  } else {
+    modalOriginalPrice.style.display = "none";
+  }
+
+  modalProductStars.innerHTML = generateStars(product.rating);
+  modalRatingText.textContent = `(${product.reviews} ulasan)`;
+  modalProductDescription.textContent =
+    product.description || "Tidak ada deskripsi tersedia."; // Fallback for description
+
+  // Set affiliate link for the "Beli Sekarang" button in the modal
+  if (modalBuyButton) {
+    modalBuyButton.onclick = () =>
+      buyProduct(product.affiliateLink, product.name);
+  }
+  // You might want to update wishlist button in modal too if you track state
+  // For now, it's just a placeholder button.
+
+  productDetailModal.style.display = "block"; // Show modal
+  document.body.style.overflow = "hidden"; // Disable body scroll
+}
+
+function hideProductDetailModal() {
+  if (productDetailModal) {
+    productDetailModal.style.display = "none";
+  }
+  document.body.style.overflow = "auto"; // Re-enable body scroll
 }
 
 // Utility Functions
 function showLoading() {
-  loadingOverlay.classList.add("show");
+  if (loadingOverlay) {
+    loadingOverlay.classList.add("show");
+  }
 }
 
 function hideLoading() {
-  loadingOverlay.classList.remove("show");
+  if (loadingOverlay) {
+    loadingOverlay.classList.remove("show");
+  }
 }
 
 function showNotification(message, type = "info") {
-  // Create notification element
   const notification = document.createElement("div");
   notification.className = `notification ${type}`;
   notification.innerHTML = `
@@ -322,7 +475,6 @@ function showNotification(message, type = "info") {
         <span>${message}</span>
     `;
 
-  // Add styles
   notification.style.cssText = `
         position: fixed;
         top: 100px;
@@ -341,7 +493,6 @@ function showNotification(message, type = "info") {
 
   document.body.appendChild(notification);
 
-  // Remove after 3 seconds
   setTimeout(() => {
     notification.style.animation = "slideOut 0.3s ease";
     setTimeout(() => {
@@ -355,12 +506,11 @@ function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
   // Navbar scroll effect
-  if (scrollTop > 100) {
-    navbar.style.background = "rgba(255, 255, 255, 0.98)";
-    navbar.style.boxShadow = "0 2px 20px rgba(0,0,0,0.1)";
+  if (scrollTop > 50) {
+    // Changed from 100 to 50 for earlier effect
+    navbar.classList.add("scrolled"); // Use class for styling
   } else {
-    navbar.style.background = "rgba(255, 255, 255, 0.95)";
-    navbar.style.boxShadow = "none";
+    navbar.classList.remove("scrolled");
   }
 
   // Back to top button
@@ -378,24 +528,19 @@ function scrollToTop() {
   });
 }
 
-function scrollToProducts() {
-  document.getElementById("products").scrollIntoView({
-    behavior: "smooth",
-  });
-}
-
 // Newsletter
 function handleNewsletterSubmit(e) {
   e.preventDefault();
   const email = e.target.querySelector('input[type="email"]').value;
 
   if (email) {
-    showNotification("Thank you for subscribing!", "success");
+    showNotification("Terima kasih sudah berlangganan!", "success");
     e.target.querySelector('input[type="email"]').value = "";
   }
 }
 
-// Animation Keyframes (add to CSS)
+// Animation Keyframes (should be in CSS, but included here for completeness)
+// Consider moving these to your style.css for better separation
 const animationCSS = `
 @keyframes slideIn {
     from {
@@ -418,72 +563,131 @@ const animationCSS = `
         opacity: 0;
     }
 }
+
+/* Add modal specific animations here if they are not in style.css */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 `;
 
-// Add animation styles to head
+// Add animation styles to head (only if not already in style.css)
 const style = document.createElement("style");
 style.textContent = animationCSS;
 document.head.appendChild(style);
 
-// Performance Optimization: Lazy Loading Images
-function setupLazyLoading() {
-  const images = document.querySelectorAll('img[loading="lazy"]');
-
-  if ("IntersectionObserver" in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src || img.src;
-          img.classList.remove("lazy");
-          imageObserver.unobserve(img);
-        }
-      });
-    });
-
-    images.forEach((img) => imageObserver.observe(img));
-  }
-}
-
-// Search Functionality (bonus feature)
+// Search Functionality
+// You need to ensure a search input element with id="searchInput" exists in your HTML
+// For example: <input type="text" id="searchInput" placeholder="Cari produk...">
 function initializeSearch() {
-  const searchInput = document.createElement("input");
-  searchInput.type = "text";
-  searchInput.placeholder = "Cari produk...";
-  searchInput.className = "search-input";
-
-  searchInput.addEventListener("input", handleSearch);
-
-  // Add search input to navbar (optional)
-  // navContainer.appendChild(searchInput);
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", handleSearch);
+  }
 }
 
 function handleSearch(e) {
   const searchTerm = e.target.value.toLowerCase();
-  const products = document.querySelectorAll(".product-card");
+  showLoading();
+  setTimeout(() => {
+    const activeCategory =
+      document.querySelector(".filter-btn.active").dataset.filter;
+    const filteredAndSearchedProducts = getFilteredAndSearchedProducts(
+      activeCategory,
+      searchTerm
+    );
+    displayedProducts = productsPerPage; // Reset count for search
+    displayProductsGrid(
+      filteredAndSearchedProducts.slice(0, displayedProducts)
+    );
+    updateLoadMoreButton();
+    hideLoading();
+  }, 500);
+}
 
-  products.forEach((product) => {
-    const productName = product
-      .querySelector(".product-name")
-      .textContent.toLowerCase();
-    if (productName.includes(searchTerm)) {
-      product.style.display = "block";
-    } else {
-      product.style.display = "none";
-    }
-  });
+// Helper for combined filter and search (used in handleSearch and displayProducts)
+function getFilteredAndSearchedProducts(category, searchTerm = "") {
+  let filtered = productsData;
+
+  if (category && category !== "all") {
+    filtered = filtered.filter(
+      (product) => product.category.toLowerCase() === category.toLowerCase()
+    );
+  }
+
+  if (searchTerm) {
+    filtered = filtered.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchTerm) ||
+        (product.description &&
+          product.description.toLowerCase().includes(searchTerm)) ||
+        product.category.toLowerCase().includes(searchTerm)
+    );
+  }
+  return filtered;
+}
+
+// A new function to display products without resetting displayedProducts count immediately
+function displayProductsGrid(productsToDisplay) {
+  productsGrid.innerHTML = "";
+  if (productsToDisplay.length === 0) {
+    productsGrid.innerHTML =
+      "<p class='no-products-message'>Tidak ada produk yang ditemukan untuk kategori atau pencarian ini.</p>";
+  } else {
+    productsToDisplay.forEach((product, index) => {
+      const productCard = createProductCard(product);
+      productCard.style.animationDelay = `${index * 0.1}s`;
+      productsGrid.appendChild(productCard);
+    });
+  }
+}
+
+// Re-evaluate displayProducts to use the combined filter and search
+function displayProducts() {
+  // This showLoading/hideLoading here is for when filter/load more is clicked
+  // Initial loading is handled by fetchProducts
+  if (!isLoading) showLoading();
+
+  setTimeout(() => {
+    const currentSearchTerm = document.getElementById("searchInput")
+      ? document.getElementById("searchInput").value.toLowerCase()
+      : "";
+    const filteredAndSearchedProducts = getFilteredAndSearchedProducts(
+      currentFilter,
+      currentSearchTerm
+    );
+    const productsToShow = filteredAndSearchedProducts.slice(
+      0,
+      displayedProducts
+    );
+
+    displayProductsGrid(productsToShow); // Use the new function
+
+    hideLoading();
+    updateLoadMoreButton();
+  }, 500); // Small delay for visual effect
 }
 
 // Error Handling
 window.addEventListener("error", function (e) {
   console.error("BimaShop Error:", e.error);
-  // You can implement error tracking here
 });
 
 // Console Welcome Message
 console.log(`
 🚀 BimaShop - Affiliate TikTok Shop Landing Page
 📱 Version: 1.0.0
-🛠️  Built with HTML, CSS, JavaScript
-💡 Ready for your affiliate links!
+🛠️ Built with HTML, CSS, JavaScript
+💡 Ready for You By Ignitron
 `);

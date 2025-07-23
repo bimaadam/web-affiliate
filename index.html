@@ -13,7 +13,7 @@
       content="BimaShop, elektronik, HP, laptop, komputer, charger, aksesoris, murah, original, TikTok Shop, Ignitron, IgnitronDev, solusi teknologi, pengembangan perangkat lunak"
     />
     <meta name="author" content="Ignitron" />
-    <link rel="canonical" href="https://www.your-bimashop-url.com/" />
+    <link rel="canonical" href="https://shop.bimaadam.fun/" />
 
     <link rel="stylesheet" href="styles/style.css" />
     <link
@@ -72,18 +72,11 @@
           </div>
         </div>
         <div class="hero-image">
-          <div class="floating-card card-1">
-            <i class="fas fa-mobile-alt"></i>
-            <span>Smartphone</span>
-          </div>
-          <div class="floating-card card-2">
-            <i class="fas fa-laptop"></i>
-            <span>Laptop</span>
-          </div>
-          <div class="floating-card card-3">
-            <i class="fas fa-charging-station"></i>
-            <span>Charger</span>
-          </div>
+          <img
+            src="assets/img/iphone.png"
+            alt="iPhone 15 Pro Max"
+            class="hero-main-product-img"
+          />
         </div>
       </div>
     </section>
@@ -153,6 +146,12 @@
             </button>
             <button class="filter-btn" data-filter="charger">Charger</button>
           </div>
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Cari produk..."
+          />
         </div>
 
         <div class="products-grid" id="products-grid"></div>
@@ -295,7 +294,6 @@
             <h3>Kontak</h3>
             <div class="contact-info">
               <p><i class="fas fa-phone"></i>+6283894302880</p>
-              <!-- <p><i class="fas fa-envelope"></i> info@bimashop.com</p> -->
               <p><i class="fas fa-map-marker-alt"></i> Boyolali, Indonesia</p>
             </div>
           </div>
@@ -318,6 +316,42 @@
       <i class="fas fa-arrow-up"></i>
     </button>
 
+    <div id="productDetailModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <div class="modal-body">
+          <div class="modal-product-image-container">
+            <img
+              id="modalProductImage"
+              src=""
+              alt="Product Image"
+              class="modal-product-image"
+            />
+          </div>
+          <div class="modal-product-info">
+            <h2 id="modalProductName"></h2>
+            <div class="modal-product-price">
+              <span id="modalCurrentPrice" class="current-price"></span>
+              <span id="modalOriginalPrice" class="original-price"></span>
+            </div>
+            <div class="modal-product-rating">
+              <span id="modalProductStars" class="stars"></span>
+              <span id="modalRatingText" class="rating-text"></span>
+            </div>
+            <p id="modalProductDescription" class="product-description"></p>
+
+            <div class="modal-product-actions">
+              <button class="btn-primary">
+                <i class="fas fa-shopping-cart"></i> Beli Sekarang
+              </button>
+              <button class="btn-secondary">
+                <i class="fas fa-heart"></i> Tambah ke Wishlist
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="loading-overlay" id="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
